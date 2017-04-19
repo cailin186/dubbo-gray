@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+	http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+	
+	<!--  管理类 -->
+	<dubbo:application id="application" name="pay_gray"/>
+	<!-- <dubbo:monitor protocol="registry"></dubbo:monitor> -->
+	<dubbo:registry id="registry" protocol="zookeeper" address="${zookeeper.address}"  timeout="${dubbo.timeout}" />
+	<!-- <dubbo:provider filter="baseProviderFilter" timeout="${dubbo.timeout}" retries="${dubbo.retries}" /> -->  
+	<dubbo:reference id="registryService" interface="com.alibaba.dubbo.registry.RegistryService" check="false" />
+	<bean id="registryContainer" class="com.xlz.event.RegistryContainer" init-method="start">
+		<property name="application" ref="application"></property>
+		<property name="registry" ref="registry"></property>
+		<property name="registryService" ref="registryService"></property>
+	</bean>
+</beans>

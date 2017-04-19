@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.xlz.gray.mapper.ApplicationStrategyMapper">
+	
+	<sql id="columnListWithoutId" >
+		link_id,
+		strategy_id,
+		type,
+		status,
+		level
+	</sql>
+	
+	<sql id="columnList" >
+	    id , <include refid="columnListWithoutId" />
+	</sql>
+	
+	<resultMap type="com.xlz.gray.model.ApplicationStrategy" id="result">
+		<result column="id" property="id"/>
+		<result column="link_id" property="linkId"/>
+		<result column="strategy_id" property="strategyId"/>
+		<result column="type" property="type"/>
+		<result column="level" property="level"/>
+		<result column="status" property="status"/>
+	</resultMap>
+	
+	<insert id="save" keyColumn="id" keyProperty="id" useGeneratedKeys="true">
+		insert into gray_application_strategy (	
+			id,
+			link_id,
+			strategy_id,
+			type,
+			status,
+			level
+			)
+		values(
+			#{id},
+			#{linkId},
+			#{strategyId},
+			#{type},
+			#{status},
+			#{level}
+	
+		)
+	</insert>
+	
+	<update id="update">
+		update 
+			gray_application_strategy
+		<set>
+			<if test="linkId != null">
+				link_id=#{linkId},
+			</if>
+			<if test="strategyId != null">
+				strategy_id=#{strategyId},
+			</if>
+			<if test="type != null">
+				type=#{type},
+			</if>
+			<if test="status != null">
+				status=#{status},
+			</if>
+			<if test="level != null">
+				level=#{level},
+			</if>
+		</set>
+		where 
+			id = #{id}
+	</update>
+	
+	<delete id="delete">
+		delete from 
+			gray_application_strategy 
+		where 
+			id = #{id}
+	</delete>
+	
+	<select id="findById" resultMap="result">
+		select 
+			<include refid="columnList" />
+		from 
+			gray_application_strategy 
+		where 
+			id = #{id}
+	</select>
+	
+	<select id="findAll" resultMap="result">
+		select 
+			<include refid="columnList" />
+		from 
+			gray_application_strategy  
+		<include refid="Common.parseFilterRules"/>
+	</select>
+	
+	<select id="getTotalCount" resultType="int">
+        select count(*)
+        from 
+        	gray_application_strategy
+        <include refid="Common.parseFilterRules"/>
+    </select>
+    
+	<select id="findByPage" resultMap="result">
+		select 
+			<include refid="columnList" />
+		from 
+			gray_application_strategy 
+		<include refid="Common.parseFilterRules"/>
+		order by ${pageQuery.sort} ${pageQuery.order}
+		limit #{pageQuery.start} , #{pageQuery.pageSize}
+	</select>
+</mapper>

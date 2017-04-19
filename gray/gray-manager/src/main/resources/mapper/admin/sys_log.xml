@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.xlz.admin.mapper.SysLogMapper">
+	
+	<sql id="columnListWithoutId" >
+		login_name,
+		role_name,
+		opt_content,
+		client_ip,
+		create_time
+	</sql>
+	
+	<sql id="columnList" >
+	    id , <include refid="columnListWithoutId" />
+	</sql>
+	
+	<resultMap type="com.xlz.admin.model.SysLog" id="result">
+		<result column="id" property="id"/>
+		<result column="login_name" property="loginName"/>
+		<result column="role_name" property="roleName"/>
+		<result column="opt_content" property="optContent"/>
+		<result column="client_ip" property="clientIp"/>
+		<result column="create_time" property="createTime"/>
+	</resultMap>
+	
+	<insert id="save" keyColumn="id" keyProperty="id" useGeneratedKeys="true">
+		insert into admin_sys_log (	
+			id,
+			login_name,
+			role_name,
+			opt_content,
+			client_ip,
+			create_time
+			)
+		values(
+			#{id},
+			#{loginName},
+			#{roleName},
+			#{optContent},
+			#{clientIp},
+			#{createTime}
+	
+		)
+	</insert>
+	
+	<update id="update">
+		update 
+			admin_sys_log
+		<set>
+			<if test="loginName != null">
+				login_name=#{loginName},
+			</if>
+			<if test="roleName != null">
+				role_name=#{roleName},
+			</if>
+			<if test="optContent != null">
+				opt_content=#{optContent},
+			</if>
+			<if test="clientIp != null">
+				client_ip=#{clientIp},
+			</if>
+			<if test="createTime != null">
+				create_time=#{createTime},
+			</if>
+		</set>
+		where 
+			id = #{id}
+	</update>
+	
+	<delete id="delete">
+		delete from 
+			admin_sys_log 
+		where 
+			id = #{id}
+	</delete>
+	
+	<select id="findById" resultMap="result">
+		select 
+			<include refid="columnList" />
+		from 
+			admin_sys_log 
+		where 
+			id = #{id}
+	</select>
+	
+	<select id="findAll" resultMap="result">
+		select 
+			<include refid="columnList" />
+		from 
+			admin_sys_log  
+		<include refid="Common.parseFilterRules"/>
+	</select>
+	
+	<select id="getTotalCount" resultType="int">
+        select count(*)
+        from 
+        	admin_sys_log
+        <include refid="Common.parseFilterRules"/>
+    </select>
+    
+	<select id="findByPage" resultMap="result">
+		select 
+			<include refid="columnList" />
+		from 
+			admin_sys_log 
+		<include refid="Common.parseFilterRules"/>
+		order by ${pageQuery.sort} ${pageQuery.order}
+		limit #{pageQuery.start} , #{pageQuery.pageSize}
+	</select>
+</mapper>

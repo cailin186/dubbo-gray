@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.xlz.admin.mapper.OrganizationMapper">
+	
+	<sql id="columnListWithoutId" >
+		name,
+		address,
+		code,
+		icon,
+		pid,
+		seq,
+		create_time
+	</sql>
+	
+	<sql id="columnList" >
+	    id , <include refid="columnListWithoutId" />
+	</sql>
+	
+	<resultMap type="com.xlz.admin.model.Organization" id="result">
+		<result column="id" property="id"/>
+		<result column="name" property="name"/>
+		<result column="address" property="address"/>
+		<result column="code" property="code"/>
+		<result column="icon" property="icon"/>
+		<result column="pid" property="pid"/>
+		<result column="seq" property="seq"/>
+		<result column="create_time" property="createTime"/>
+	</resultMap>
+	
+	<insert id="save" keyColumn="id" keyProperty="id" useGeneratedKeys="true">
+		insert into admin_organization (	
+			id,
+			name,
+			address,
+			code,
+			icon,
+			pid,
+			seq,
+			create_time
+			)
+		values(
+			#{id},
+			#{name},
+			#{address},
+			#{code},
+			#{icon},
+			#{pid},
+			#{seq},
+			now()
+	
+		)
+	</insert>
+	
+	<update id="update">
+		update 
+			admin_organization
+		<set>
+			<if test="name != null">
+				name=#{name},
+			</if>
+			<if test="address != null">
+				address=#{address},
+			</if>
+			<if test="code != null">
+				code=#{code},
+			</if>
+			<if test="icon != null">
+				icon=#{icon},
+			</if>
+			<if test="pid != null">
+				pid=#{pid},
+			</if>
+			<if test="seq != null">
+				seq=#{seq},
+			</if>
+			<if test="createTime != null">
+				create_time=#{createTime},
+			</if>
+		</set>
+		where 
+			id = #{id}
+	</update>
+	
+	<delete id="delete">
+		delete from 
+			admin_organization 
+		where 
+			id = #{id}
+	</delete>
+	
+	<select id="findById" resultMap="result">
+		select 
+			<include refid="columnList" />
+		from 
+			admin_organization 
+		where 
+			id = #{id}
+	</select>
+	
+	<select id="findAll" resultMap="result">
+		select 
+			<include refid="columnList" />
+		from 
+			admin_organization  
+		<include refid="Common.parseFilterRules"/>
+		order by seq
+	</select>
+	
+	<select id="getTotalCount" resultType="int">
+        select count(*)
+        from 
+        	admin_organization
+        <include refid="Common.parseFilterRules"/>
+    </select>
+    
+	<select id="findByPage" resultMap="result">
+		select 
+			<include refid="columnList" />
+		from 
+			admin_organization 
+		<include refid="Common.parseFilterRules"/>
+		order by ${pageQuery.sort} ${pageQuery.order}
+		limit #{pageQuery.start} , #{pageQuery.pageSize}
+	</select>
+</mapper>

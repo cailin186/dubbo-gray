@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.xlz.admin.mapper.UserRoleMapper">
+	
+	<sql id="columnListWithoutId" >
+		user_id,
+		role_id
+	</sql>
+	
+	<sql id="columnList" >
+	    id , <include refid="columnListWithoutId" />
+	</sql>
+	
+	<resultMap type="com.xlz.admin.model.UserRole" id="result">
+		<result column="id" property="id"/>
+		<result column="user_id" property="userId"/>
+		<result column="role_id" property="roleId"/>
+	</resultMap>
+	
+	<insert id="save" keyColumn="id" keyProperty="id" useGeneratedKeys="true">
+		insert into admin_user_role (	
+			id,
+			user_id,
+			role_id
+			)
+		values(
+			#{id},
+			#{userId},
+			#{roleId}
+	
+		)
+	</insert>
+	
+	<update id="update">
+		update 
+			admin_user_role
+		<set>
+			<if test="userId != null">
+				user_id=#{userId},
+			</if>
+			<if test="roleId != null">
+				role_id=#{roleId},
+			</if>
+		</set>
+		where 
+			id = #{id}
+	</update>
+	
+	<delete id="delete">
+		delete from 
+			admin_user_role 
+		where 
+			id = #{id}
+	</delete>
+	
+	<select id="findById" resultMap="result">
+		select 
+			<include refid="columnList" />
+		from 
+			admin_user_role 
+		where 
+			id = #{id}
+	</select>
+	
+	<select id="findAll" resultMap="result">
+		select 
+			<include refid="columnList" />
+		from 
+			admin_user_role  
+		<include refid="Common.parseFilterRules"/>
+	</select>
+	
+	<select id="getTotalCount" resultType="int">
+        select count(*)
+        from 
+        	admin_user_role
+        <include refid="Common.parseFilterRules"/>
+    </select>
+    
+	<select id="findByPage" resultMap="result">
+		select 
+			<include refid="columnList" />
+		from 
+			admin_user_role 
+		<include refid="Common.parseFilterRules"/>
+		order by ${pageQuery.sort} ${pageQuery.order}
+		limit #{pageQuery.start} , #{pageQuery.pageSize}
+	</select>
+	
+	<select id="selectByUserId" resultType="UserRole" parameterType="java.lang.Long">
+        select
+        <include refid="columnList"/>
+        from admin_user_role
+        where user_id = #{userId}
+    </select>
+
+    <select id="selectRoleIdListByUserId" resultType="java.lang.Long" parameterType="java.lang.Long">
+        select 
+        role_id AS roleId
+        from admin_user_role
+        where user_id = #{userId}
+    </select>
+</mapper>

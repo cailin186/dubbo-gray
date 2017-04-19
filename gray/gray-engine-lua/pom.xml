@@ -1,0 +1,76 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.xlz</groupId>
+		<artifactId>gray</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+	<artifactId>gray-engine-lua</artifactId>
+
+	<description>这个是nginx的lua引擎，打包后会生成zip文件</description>
+	<build>
+		<!-- <filters>
+			<filter>src/main/resources/environment/${env}-env.properties</filter>
+		</filters> -->
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>lua/*.lua</include>
+					<include>conf/*.conf</include>
+				</includes>
+			</resource>
+		</resources>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.2.1</version>
+				<configuration>
+				 	<!-- not append assembly id in release file name -->
+					<appendAssemblyId>false</appendAssemblyId>
+					<finalName>gray-engine</finalName>
+					<descriptors>
+						<descriptor>src/main/assembly/assembly.xml</descriptor>
+					</descriptors>
+				</configuration>
+				<executions>
+					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+	<!-- 多环境打包 -->
+	<profiles>
+		<!-- 开发环境，默认激活 -->
+		<profile>
+			<id>dev</id>
+			<properties>
+				<gray.server.url>http://100.66.153.186:80/gray/pullApplicationConfig/applicationConfig</gray.server.url>
+				<gray.base.path>/usr/local/nginx/</gray.base.path>
+			</properties>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+		</profile>
+		<!-- 生产环境 -->
+		<profile>
+			<id>product</id>
+			<properties>
+				<gray.server.url>http://100.66.153.186:80/gray/pullApplicationConfig/applicationConfig</gray.server.url>
+				<gray.base.path>/usr/local/nginx/</gray.base.path>
+			</properties>
+			<!-- <activation> 
+				<activeByDefault>true</activeByDefault> 
+			</activation> -->
+		</profile>
+	</profiles>
+</project>

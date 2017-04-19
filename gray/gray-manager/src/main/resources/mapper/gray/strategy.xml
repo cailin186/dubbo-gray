@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.xlz.gray.mapper.StrategyMapper">
+	
+	<sql id="columnListWithoutId" >
+		name,
+		forward_reverse,
+		flow_tatio,
+		regular,
+		way,
+		remark,
+		status,
+		create_time,
+		create_user,
+		update_time,
+		update_user
+	</sql>
+	
+	<sql id="columnList" >
+	    id , <include refid="columnListWithoutId" />
+	</sql>
+	
+	<resultMap type="com.xlz.gray.model.Strategy" id="result">
+		<result column="id" property="id"/>
+		<result column="name" property="name"/>
+		<result column="forward_reverse" property="forwardReverse"/>
+		<result column="flow_tatio" property="flowTatio"/>
+		<result column="regular" property="regular"/>
+		<result column="way" property="way"/>
+		<result column="remark" property="remark"/>
+		<result column="status" property="status"/>
+		<result column="create_time" property="createTime"/>
+		<result column="create_user" property="createUser"/>
+		<result column="update_time" property="updateTime"/>
+		<result column="update_user" property="updateUser"/>
+		<result column="level" property="level"/>
+	</resultMap>
+	
+	<insert id="save" keyColumn="id" keyProperty="id" useGeneratedKeys="true">
+		insert into gray_strategy (	
+			id,
+			name,
+			forward_reverse,
+			flow_tatio,
+			regular,
+			way,
+			remark,
+			status,
+			create_time,
+			create_user,
+			update_time,
+			update_user
+			)
+		values(
+			#{id},
+			#{name},
+			#{forwardReverse},
+			#{flowTatio},
+			#{regular},
+			#{way},
+			#{remark},
+			#{status},
+			now(),
+			#{createUser},
+			#{updateTime},
+			#{updateUser}
+		)
+	</insert>
+	
+	<update id="update">
+		update 
+			gray_strategy
+		<set>
+			<if test="name != null">
+				name=#{name},
+			</if>
+			<if test="forwardReverse != null">
+				forward_reverse=#{forwardReverse},
+			</if>
+			<if test="flowTatio != null">
+				flow_tatio=#{flowTatio},
+			</if>
+			<if test="regular != null">
+				regular=#{regular},
+			</if>
+			<if test="way != null">
+				way=#{way},
+			</if>
+			<if test="remark != null">
+				remark=#{remark},
+			</if>
+			<if test="status != null">
+				status=#{status},
+			</if>
+			<if test="createTime != null">
+				create_time=#{createTime},
+			</if>
+			<if test="createUser != null">
+				create_user=#{createUser},
+			</if>
+			<if test="updateUser != null">
+				update_user=#{updateUser},
+			</if>
+			update_time=now()
+		</set>
+		where 
+			id = #{id}
+	</update>
+	
+	<delete id="delete">
+		delete from 
+			gray_strategy 
+		where 
+			id = #{id}
+	</delete>
+	
+	<select id="findById" resultMap="result">
+		select 
+			<include refid="columnList" />
+		from 
+			gray_strategy 
+		where 
+			id = #{id}
+	</select>
+	
+	<select id="findAll" resultMap="result">
+		select 
+			<include refid="columnList" />
+		from 
+			gray_strategy  
+		<include refid="Common.parseFilterRules"/>
+	</select>
+	
+	<select id="getTotalCount" resultType="int">
+        select count(*)
+        from 
+        	gray_strategy
+        <include refid="Common.parseFilterRules"/>
+    </select>
+	
+	<select id="findByPage" resultMap="result">
+		select 
+			<include refid="columnList" />
+		from 
+			gray_strategy 
+		<include refid="Common.parseFilterRules"/>
+		order by ${pageQuery.sort} ${pageQuery.order}
+		limit #{pageQuery.start} , #{pageQuery.pageSize}
+	</select>
+	<!-- 根据系统id获取灰度策略 -->
+	<select id="findStrategyByLink" resultMap="result">
+		select 
+			s.id as id, 
+			s.name as name,
+			t.type as type,
+			s.forward_reverse as forward_reverse,
+			s.flow_tatio as flow_tatio,
+			s.regular as regular,
+			s.way as way,
+			t.level as level,
+			t.status as status
+		from
+			gray_application_strategy t ,gray_strategy s
+		where 
+			t.strategy_id=s.id 
+			and t.link_id=#{id}
+			and t.type=#{engineType}
+			and t.level=#{level}
+	</select>
+</mapper>

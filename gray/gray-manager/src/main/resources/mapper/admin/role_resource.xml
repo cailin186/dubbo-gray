@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.xlz.admin.mapper.RoleResourceMapper">
+	
+	<sql id="columnListWithoutId" >
+		role_id,
+		resource_id
+	</sql>
+	
+	<sql id="columnList" >
+	    id , <include refid="columnListWithoutId" />
+	</sql>
+	
+	<resultMap type="com.xlz.admin.model.RoleResource" id="result">
+		<result column="id" property="id"/>
+		<result column="role_id" property="roleId"/>
+		<result column="resource_id" property="resourceId"/>
+	</resultMap>
+	
+	<insert id="save" keyColumn="id" keyProperty="id" useGeneratedKeys="true">
+		insert into admin_role_resource (	
+			id,
+			role_id,
+			resource_id
+			)
+		values(
+			#{id},
+			#{roleId},
+			#{resourceId}
+	
+		)
+	</insert>
+	
+	<update id="update">
+		update 
+			admin_role_resource
+		<set>
+			<if test="roleId != null">
+				role_id=#{roleId},
+			</if>
+			<if test="resourceId != null">
+				resource_id=#{resourceId},
+			</if>
+		</set>
+		where 
+			id = #{id}
+	</update>
+	
+	<delete id="delete">
+		delete from 
+			admin_role_resource 
+		where 
+			id = #{id}
+	</delete>
+	
+	<select id="findById" resultMap="result">
+		select 
+			<include refid="columnList" />
+		from 
+			admin_role_resource 
+		where 
+			id = #{id}
+	</select>
+	
+	<select id="findAll" resultMap="result">
+		select 
+			<include refid="columnList" />
+		from 
+			admin_role_resource  
+		<include refid="Common.parseFilterRules"/>
+	</select>
+	
+	<select id="getTotalCount" resultType="int">
+        select count(*)
+        from 
+        	admin_role_resource
+        <include refid="Common.parseFilterRules"/>
+    </select>
+    
+	<select id="findByPage" resultMap="result">
+		select 
+			<include refid="columnList" />
+		from 
+			admin_role_resource 
+		<include refid="Common.parseFilterRules"/>
+		order by ${pageQuery.sort} ${pageQuery.order}
+		limit #{pageQuery.start} , #{pageQuery.pageSize}
+	</select>
+	
+	<select id="selectIdListByRoleId" resultType="java.lang.Long" parameterType="java.lang.Long">
+        SELECT
+            e.id AS id
+        FROM
+            admin_role r
+        LEFT JOIN admin_role_resource e ON r.id = e.role_id
+        WHERE
+            r.id = #{id}
+    </select>
+</mapper>

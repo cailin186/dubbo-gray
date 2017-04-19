@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.xlz.gray.mapper.ApplicationMapper">
+	
+	<sql id="columnListWithoutId" >
+		name,
+		application_id,
+		organization_id,
+		gray_ip,
+		deploy_ip,
+		param,
+		remark,
+		status,
+		create_time,
+		create_user,
+		update_time,
+		update_user
+	</sql>
+	
+	<sql id="columnList" >
+	    id , <include refid="columnListWithoutId" />
+	</sql>
+	
+	<resultMap type="com.xlz.gray.model.Application" id="result">
+		<result column="id" property="id"/>
+		<result column="name" property="name"/>
+		<result column="application_id" property="applicationId"/>
+		<result column="organization_id" property="organizationId"/>
+		<result column="gray_ip" property="grayIp"/>
+		<result column="deploy_ip" property="deployIp"/>
+		<result column="remark" property="remark"/>
+		<result column="param" property="param"/>
+		<result column="status" property="status"/>
+		<result column="create_time" property="createTime"/>
+		<result column="create_user" property="createUser"/>
+		<result column="update_time" property="updateTime"/>
+		<result column="update_user" property="updateUser"/>
+	</resultMap>
+	
+	<insert id="save" keyColumn="id" keyProperty="id" useGeneratedKeys="true">
+		insert into gray_application (	
+			id,
+			name,
+			application_id,
+			organization_id,
+			gray_ip,
+			deploy_ip,
+			param,
+			remark,
+			status,
+			create_time,
+			create_user,
+			update_time,
+			update_user
+			)
+		values(
+			#{id},
+			#{name},
+			#{applicationId},
+			#{organizationId},
+			#{grayIp},
+			#{deployIp},
+			#{param},
+			#{remark},
+			#{status},
+			now(),
+			#{createUser},
+			#{updateTime},
+			#{updateUser}
+		)
+	</insert>
+	
+	<update id="update">
+		update 
+			gray_application
+		<set>
+			<if test="name != null">
+				name=#{name},
+			</if>
+			<if test="applicationId != null">
+				application_id=#{applicationId},
+			</if>
+			<if test="organizationId != null">
+				organization_id=#{organizationId},
+			</if>
+			<if test="grayIp != null">
+				gray_ip=#{grayIp},
+			</if>
+			<if test="deployIp != null">
+				deploy_ip=#{deployIp},
+			</if>
+			<if test="param != null">
+				param=#{param},
+			</if>
+			<if test="remark != null">
+				remark=#{remark},
+			</if>
+			<if test="status != null">
+				status=#{status},
+			</if>
+			<if test="createTime != null">
+				create_time=#{createTime},
+			</if>
+			<if test="createUser != null">
+				create_user=#{createUser},
+			</if>
+			<if test="updateUser != null">
+				update_user=#{updateUser},
+			</if>
+			update_time=now()
+		</set>
+		where 
+			id = #{id}
+	</update>
+	
+	<delete id="delete">
+		delete from 
+			gray_application 
+		where 
+			id = #{id}
+	</delete>
+	
+	<select id="findById" resultMap="result">
+		select 
+			<include refid="columnList" />
+		from 
+			gray_application 
+		where 
+			id = #{id}
+	</select>
+	
+	<select id="findAll" resultMap="result">
+		select 
+			<include refid="columnList" />
+		from 
+			gray_application  
+		<include refid="Common.parseFilterRules"/>
+	</select>
+	
+	<select id="getTotalCount" resultType="int">
+        select count(*)
+        from 
+        	gray_application
+        <include refid="Common.parseFilterRules"/>
+    </select>
+    
+	<select id="findByPage" resultMap="result">
+		select 
+			<include refid="columnList" />
+		from 
+			gray_application 
+		<include refid="Common.parseFilterRules"/>
+		order by ${pageQuery.sort} ${pageQuery.order}
+		limit #{pageQuery.start} , #{pageQuery.pageSize}
+	</select>
+</mapper>

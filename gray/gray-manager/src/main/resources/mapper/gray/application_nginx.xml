@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.xlz.gray.mapper.ApplicationNginxMapper">
+	
+	<sql id="columnListWithoutId" >
+		ip,
+		port,
+		remark,
+		status,
+		create_time,
+		create_user,
+		update_time,
+		update_user,
+		application_id
+	</sql>
+	
+	<sql id="columnList" >
+	    id , <include refid="columnListWithoutId" />
+	</sql>
+	
+	<resultMap type="com.xlz.gray.model.ApplicationNginx" id="result">
+		<result column="id" property="id"/>
+		<result column="ip" property="ip"/>
+		<result column="port" property="port"/>
+		<result column="remark" property="remark"/>
+		<result column="status" property="status"/>
+		<result column="create_time" property="createTime"/>
+		<result column="create_user" property="createUser"/>
+		<result column="update_time" property="updateTime"/>
+		<result column="update_user" property="updateUser"/>
+		<result column="application_id" property="applicationId"/>
+	</resultMap>
+	
+	<insert id="save" keyColumn="id" keyProperty="id" useGeneratedKeys="true">
+		insert into gray_application_nginx (	
+			id,
+			ip,
+			port,
+			remark,
+			status,
+			create_time,
+			create_user,
+			update_time,
+			update_user,
+			application_id
+			)
+		values(
+			#{id},
+			#{ip},
+			#{port},
+			#{remark},
+			#{status},
+			now(),
+			#{createUser},
+			#{updateTime},
+			#{updateUser},
+			#{applicationId}
+	
+		)
+	</insert>
+	
+	<update id="update">
+		update 
+			gray_application_nginx
+		<set>
+			<if test="ip != null">
+				ip=#{ip},
+			</if>
+			<if test="port != null">
+				port=#{port},
+			</if>
+			<if test="remark != null">
+				remark=#{remark},
+			</if>
+			<if test="status != null">
+				status=#{status},
+			</if>
+			<if test="createTime != null">
+				create_time=#{createTime},
+			</if>
+			<if test="createUser != null">
+				create_user=#{createUser},
+			</if>
+			<if test="updateUser != null">
+				update_user=#{updateUser},
+			</if>
+			<if test="applicationId != null">
+				application_id=#{applicationId},
+			</if>
+			update_time=now()
+		</set>
+		where 
+			id = #{id}
+	</update>
+	
+	<delete id="delete">
+		delete from 
+			gray_application_nginx 
+		where 
+			id = #{id}
+	</delete>
+	
+	<select id="findById" resultMap="result">
+		select 
+			<include refid="columnList" />
+		from 
+			gray_application_nginx 
+		where 
+			id = #{id}
+	</select>
+	
+	<select id="findAll" resultMap="result">
+		select 
+			<include refid="columnList" />
+		from 
+			gray_application_nginx  
+		<include refid="Common.parseFilterRules"/>
+	</select>
+	
+	<select id="getTotalCount" resultType="int">
+        select count(*)
+        from 
+        	gray_application_nginx
+        <include refid="Common.parseFilterRules"/>
+    </select>
+    
+	<select id="findByPage" resultMap="result">
+		select 
+			<include refid="columnList" />
+		from 
+			gray_application_nginx 
+		<include refid="Common.parseFilterRules"/>
+		limit 0,1
+	</select>
+</mapper>

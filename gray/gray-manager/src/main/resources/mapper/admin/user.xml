@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.xlz.admin.mapper.UserMapper">
+	
+	<sql id="columnListWithoutId" >
+		login_name,
+		name,
+		password,
+		sex,
+		age,
+		phone,
+		user_type,
+		status,
+		organization_id,
+		create_time
+	</sql>
+	
+	<sql id="columnList" >
+	    id , <include refid="columnListWithoutId" />
+	</sql>
+	
+	<resultMap type="com.xlz.admin.model.User" id="result">
+		<result column="id" property="id"/>
+		<result column="login_name" property="loginName"/>
+		<result column="name" property="name"/>
+		<result column="password" property="password"/>
+		<result column="sex" property="sex"/>
+		<result column="age" property="age"/>
+		<result column="phone" property="phone"/>
+		<result column="user_type" property="userType"/>
+		<result column="status" property="status"/>
+		<result column="organization_id" property="organizationId"/>
+		<result column="create_time" property="createTime"/>
+		
+		<result column="organizationName" property="organizationName" jdbcType="VARCHAR"/>
+
+        <collection property="rolesList" ofType="Role">
+            <id column="roleId" property="id"/>
+            <result column="roleName" property="name"/>
+        </collection>
+	</resultMap>
+	
+	<insert id="save" keyColumn="id" keyProperty="id" useGeneratedKeys="true">
+		insert into admin_user (	
+			id,
+			login_name,
+			name,
+			password,
+			sex,
+			age,
+			phone,
+			user_type,
+			status,
+			organization_id,
+			create_time
+			)
+		values(
+			#{id},
+			#{loginName},
+			#{name},
+			#{password},
+			#{sex},
+			#{age},
+			#{phone},
+			#{userType},
+			#{status},
+			#{organizationId},
+			#{createTime}
+	
+		)
+	</insert>
+	
+	<update id="update">
+		update 
+			admin_user
+		<set>
+			<if test="loginName != null">
+				login_name=#{loginName},
+			</if>
+			<if test="name != null">
+				name=#{name},
+			</if>
+			<if test="password != null">
+				password=#{password},
+			</if>
+			<if test="sex != null">
+				sex=#{sex},
+			</if>
+			<if test="age != null">
+				age=#{age},
+			</if>
+			<if test="phone != null">
+				phone=#{phone},
+			</if>
+			<if test="userType != null">
+				user_type=#{userType},
+			</if>
+			<if test="status != null">
+				status=#{status},
+			</if>
+			<if test="organizationId != null">
+				organization_id=#{organizationId},
+			</if>
+			<if test="createTime != null">
+				create_time=#{createTime},
+			</if>
+		</set>
+		where 
+			id = #{id}
+	</update>
+	
+	<delete id="delete">
+		delete from 
+			admin_user 
+		where 
+			id = #{id}
+	</delete>
+	
+	<select id="findById" resultMap="result">
+		select 
+			<include refid="columnList" />
+		from 
+			admin_user 
+		where 
+			id = #{id}
+	</select>
+	
+	<select id="findAll" resultMap="result">
+		select 
+			<include refid="columnList" />
+		from 
+			admin_user  
+		<include refid="Common.parseFilterRules"/>
+	</select>
+	
+	<select id="getTotalCount" resultType="int">
+        select count(*)
+        from 
+        	admin_user t
+        <include refid="Common.parseFilterRules"/>
+    </select>
+    
+	<select id="findByPage" resultMap="result">
+		SELECT
+        t.id,
+        login_name,
+        t.`name`,
+        `password`,
+        sex,
+        age,
+        user_type,
+        t.`status`,
+        organization_id,
+        t.create_time,
+        phone,
+        s.`name` AS organizationName,
+        o.id AS roleId,
+        o.`name` AS roleName
+        FROM
+        admin_user t
+        LEFT JOIN admin_user_role r ON t.id = r.user_id
+        LEFT JOIN admin_role o ON r.role_id = o.id
+        LEFT JOIN admin_organization s ON s.id = t.organization_id
+        <include refid="Common.parseFilterRules"/>
+		order by ${pageQuery.sort} ${pageQuery.order}
+		limit #{pageQuery.start} , #{pageQuery.pageSize}
+	</select>
+	
+	<select id="selectUserVoById" resultMap="result" parameterType="java.lang.Long">
+        SELECT
+        t.id,
+        login_name,
+        t.`name`,
+        `password`,
+        sex,
+        age,
+        user_type,
+        t.`status`,
+        organization_id,
+        t.create_time,
+        phone,
+        s.`name` AS organizationName,
+        o.id AS roleId,
+        o.`name` AS roleName
+        FROM
+        admin_user t
+        LEFT JOIN admin_user_role r ON t.id = r.user_id
+        LEFT JOIN admin_role o ON r.role_id = o.id
+        LEFT JOIN admin_organization s ON s.id = t.organization_id
+        <where>
+            t.id = #{id}
+        </where>
+    </select>
+
+    <select id="selectUserVoPage" resultMap="result">
+        SELECT
+        t.id,
+        login_name,
+        t.`name`,
+        `password`,
+        sex,
+        age,
+        user_type,
+        t.`status`,
+        organization_id,
+        t.create_time,
+        phone,
+        s.`name` AS organizationName,
+        o.id AS roleId,
+        o.`name` AS roleName
+        FROM
+        admin_user t
+        LEFT JOIN admin_user_role r ON t.id = r.user_id
+        LEFT JOIN admin_role o ON r.role_id = o.id
+        LEFT JOIN admin_organization s ON s.id = t.organization_id
+        <where>
+            <if test=" name != null and name != '' ">
+                t.name = #{name}
+            </if>
+            <if test=" organizationId != null ">
+                t.organization_id = #{organizationId}
+            </if>
+            <if test=" startTime != null ">
+                <![CDATA[ and t.create_time >= #{startTime} ]]>
+            </if>
+            <if test=" endTime != null ">
+                <![CDATA[ and t.create_time <= #{endTime} ]]>
+            </if>
+        </where>
+    </select>
+</mapper>

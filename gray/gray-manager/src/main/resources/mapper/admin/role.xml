@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.xlz.admin.mapper.RoleMapper">
+	
+	<sql id="columnListWithoutId" >
+		name,
+		seq,
+		description,
+		status
+	</sql>
+	
+	<sql id="columnList" >
+	    id , <include refid="columnListWithoutId" />
+	</sql>
+	
+	<resultMap type="com.xlz.admin.model.Role" id="result">
+		<result column="id" property="id"/>
+		<result column="name" property="name"/>
+		<result column="seq" property="seq"/>
+		<result column="description" property="description"/>
+		<result column="status" property="status"/>
+	</resultMap>
+	
+	<insert id="save" keyColumn="id" keyProperty="id" useGeneratedKeys="true">
+		insert into admin_role (	
+			id,
+			name,
+			seq,
+			description,
+			status
+			)
+		values(
+			#{id},
+			#{name},
+			#{seq},
+			#{description},
+			#{status}
+	
+		)
+	</insert>
+	
+	<update id="update">
+		update 
+			admin_role
+		<set>
+			<if test="name != null">
+				name=#{name},
+			</if>
+			<if test="seq != null">
+				seq=#{seq},
+			</if>
+			<if test="description != null">
+				description=#{description},
+			</if>
+			<if test="status != null">
+				status=#{status},
+			</if>
+		</set>
+		where 
+			id = #{id}
+	</update>
+	
+	<delete id="delete">
+		delete from 
+			admin_role 
+		where 
+			id = #{id}
+	</delete>
+	
+	<select id="findById" resultMap="result">
+		select 
+			<include refid="columnList" />
+		from 
+			admin_role 
+		where 
+			id = #{id}
+	</select>
+	
+	<select id="findAll" resultMap="result">
+		select 
+			<include refid="columnList" />
+		from 
+			admin_role  
+		<include refid="Common.parseFilterRules"/>
+	</select>
+	
+	<select id="getTotalCount" resultType="int">
+        select count(*)
+        from 
+        	admin_role
+        <include refid="Common.parseFilterRules"/>
+        order by seq
+    </select>
+    
+	<select id="findByPage" resultMap="result">
+		select 
+			<include refid="columnList" />
+		from 
+			admin_role 
+		<include refid="Common.parseFilterRules"/>
+		order by ${pageQuery.sort} ${pageQuery.order}
+		limit #{pageQuery.start} , #{pageQuery.pageSize}
+	</select>
+	<select id="selectResourceIdListByRoleId" resultType="java.lang.Long" parameterType="java.lang.Long">
+        SELECT
+            e.resource_id AS id
+        FROM
+            admin_role r
+        LEFT JOIN admin_role_resource e ON r.id = e.role_id
+        WHERE
+            r.id = #{id}
+    </select>
+
+    <select id="selectResourceListByRoleIdList" resultType="Resource"
+            parameterType="java.lang.Long">
+        SELECT
+            DISTINCT s.id AS id,
+            s.NAME AS 'name',
+            s.url AS url,
+            s.description AS description,
+            s.icon AS icon,
+            s.pid AS pid,
+            s.seq AS seq,
+            s.STATUS AS 'status',
+            s.open_mode AS openMode,
+            s.opened as opened,
+            s.resource_type AS resourceType,
+            s.create_time AS createTime
+        FROM
+            admin_role r
+        LEFT JOIN admin_role_resource e ON r.id = e.role_id
+        LEFT JOIN admin_resource s ON e.resource_id = s.id
+        WHERE
+            r.id in  
+            <foreach item="item" index="index" collection="list" open="(" separator="," close=")">  
+                #{item}
+            </foreach>
+        AND s.resource_type = 0
+        ORDER BY seq
+    </select>
+
+    <select id="selectResourceListByRoleId" resultType="java.util.HashMap" parameterType="java.lang.Long">
+        SELECT
+            e.id AS id,
+            s.url AS url
+        FROM
+            admin_role r
+        LEFT JOIN admin_role_resource e ON r.id = e.role_id
+        LEFT JOIN admin_resource s ON e.resource_id = s.id
+        WHERE
+            r.id = #{id}
+    </select>
+</mapper>

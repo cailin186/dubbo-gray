@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Common" >
+	
+	<sql id="conditions">
+        <if test='filterRules != null'>
+            <foreach collection="filterRules" item="rule" index="index">
+                <choose>
+                    <when test='rule.comparator == "isnull"'>
+                        and ${rule.key} is null
+                    </when>
+                    <when test='rule.comparator == "notnull"'>
+                        and ${rule.key} is not null
+                    </when>
+                    <otherwise>
+                        <choose>
+                            <when test='rule.value == null'>
+
+                            </when>
+                            <when test='rule.comparator == "like"'>
+                                and ${rule.key} like concat('%',#{rule.value},'%')
+                            </when>
+                            <when test='rule.comparator == "in"'>
+                                and ${rule.key} in
+                                <foreach collection="rule.value" item="it" index="index"
+                                         open="(" close=")" separator=",">
+                                    #{it}
+                                </foreach>
+                            </when>
+                            <when test='rule.comparator == "notin"'>
+                                and ${rule.key} not in
+                                <foreach collection="rule.value" item="it" index="index" open="(" close=")" separator=",">
+                                    #{it}
+                                </foreach>
+                            </when>
+                            <when test='rule.comparator == "between"'>
+                                and ${rule.key} between
+                                <foreach collection="rule.value" item="it" index="index" separator="and">
+                                    #{it}
+                                </foreach>
+                            </when>
+                            <otherwise>
+                                and ${rule.key} <![CDATA[${rule.comparator}]]> #{rule.value}
+                            </otherwise>
+                        </choose>
+                    </otherwise>
+                </choose>
+            </foreach>
+        </if>
+	</sql>
+	
+	<sql id="parseUpdateRules">
+	    <trim prefix="" prefixOverrides=",">
+			<if test="updateRules != null"> 
+				<foreach collection="updateRules" item="rule" index="index">
+					<choose>
+						<when test='rule.comparator == "="'>
+							,${rule.key} <![CDATA[${rule.comparator}]]> #{rule.value}
+						</when>
+						<otherwise> 
+	                         
+	                    </otherwise>
+                    </choose>
+				</foreach>
+			</if>
+		</trim>
+	</sql>
+	
+	
+    <sql id="parseFilterRules">
+        <trim prefix="where" prefixOverrides="and">
+           	<include refid="Common.conditions"/>
+        </trim>
+    </sql>
+    
+    <sql id="parseFilterRulesWithoutWhere">
+        <trim prefix="" prefixOverrides="">
+           	<include refid="Common.conditions"/>
+        </trim>
+    </sql>
+</mapper>

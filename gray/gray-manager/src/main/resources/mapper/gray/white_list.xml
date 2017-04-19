@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.xlz.gray.mapper.WhiteListMapper">
+	
+	<sql id="columnListWithoutId" >
+		param,
+		group_id,
+		remark,
+		status,
+		create_time,
+		create_user,
+		update_time,
+		update_user
+	</sql>
+	
+	<sql id="columnList" >
+	    id , <include refid="columnListWithoutId" />
+	</sql>
+	
+	<resultMap type="com.xlz.gray.model.WhiteList" id="result">
+		<result column="id" property="id"/>
+		<result column="param" property="param"/>
+		<result column="group_id" property="groupId"/>
+		<result column="remark" property="remark"/>
+		<result column="status" property="status"/>
+		<result column="create_time" property="createTime"/>
+		<result column="create_user" property="createUser"/>
+		<result column="update_time" property="updateTime"/>
+		<result column="update_user" property="updateUser"/>
+	</resultMap>
+	
+	<insert id="save" keyColumn="id" keyProperty="id" useGeneratedKeys="true">
+		insert into gray_white_list (
+			id,	
+			param,
+			group_id,
+			remark,
+			status,
+			create_time,
+			create_user,
+			update_time,
+			update_user
+			)
+		values(
+			#{id},
+			#{param},
+			#{groupId},
+			#{remark},
+			#{status},
+			#{createTime},
+			#{createUser},
+			#{updateTime},
+			#{updateUser}
+		)
+	</insert>
+	
+	<update id="update">
+		update 
+			gray_white_list
+		<set>
+			<if test="param != null">
+				param=#{param},
+			</if>
+			<if test="groupId != null">
+				group_id=#{groupId},
+			</if>
+			<if test="remark != null">
+				remark=#{remark},
+			</if>
+			<if test="status != null">
+				status=#{status},
+			</if>
+			<if test="createTime != null">
+				create_time=#{createTime},
+			</if>
+			<if test="createUser != null">
+				create_user=#{createUser},
+			</if>
+			<if test="updateUser != null">
+				update_user=#{updateUser},
+			</if>
+			update_time=now()
+		</set>
+		where 
+			id = #{id}
+	</update>
+	
+	<update id="delete">
+		update  
+			gray_white_list 
+		set
+			status=-1
+		where 
+			id = #{id}
+	</update>
+	
+	<select id="findById" resultMap="result">
+		select 
+			<include refid="columnList" />
+		from 
+			gray_white_list 
+		where 
+			id = #{id}
+	</select>
+	
+	<select id="findAll" resultMap="result">
+		select 
+			<include refid="columnList" />
+		from 
+			gray_white_list  
+		where 
+			<include refid="Common.parseFilterRules"/>
+	</select>
+	
+	<select id="getTotalCount" resultType="int">
+        select count(*)
+        from 
+        	gray_white_list
+        <include refid="Common.parseFilterRules"/>
+    </select>
+    
+	<select id="findByPage" resultMap="result">
+		select 
+			<include refid="columnList" />
+		from 
+			gray_white_list 
+		<include refid="Common.parseFilterRules"/>
+		order by ${pageQuery.sort} ${pageQuery.order}
+		limit #{pageQuery.start} , #{pageQuery.pageSize}
+	</select>
+	<!-- 根据策略id获取白名单列表 -->
+	<select id="findWhitelistByLinkId" resultMap="result">
+		select 
+			param,
+			group_id,
+			remark,
+			s.status as status
+		from
+			gray_white_list t ,gray_application_white_list s
+		where 
+			t.id=s.white_list_id 
+			and s.level =#{level}
+			and s.link_id =#{id}
+	</select>
+	
+	<select id="getSelectedTotalCount" resultType="int">
+		select 
+			count(1)
+		from 
+			gray_application_white_list s left join gray_white_list t
+		on s.white_list_id = t.id
+		<include refid="Common.parseFilterRules"/>
+	</select>
+	
+	<select id="findSelectedByPage" resultMap="result">
+		select 
+			s.id as id,
+			t.param as param,
+			t.group_id as group_id,
+			t.remark as remark ,
+			t.status as status,
+			t.create_time as create_time,
+			t.create_user as create_user,
+			t.update_time as update_time,
+			t.update_user as update_user
+		from 
+			gray_application_white_list s left join gray_white_list t
+		on s.white_list_id = t.id
+		<include refid="Common.parseFilterRules"/>
+		order by ${pageQuery.sort} ${pageQuery.order}
+		limit #{pageQuery.start} , #{pageQuery.pageSize}
+	</select>
+</mapper>
