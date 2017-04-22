@@ -30,7 +30,7 @@ public class GrayServiceController extends GrayBaseController {
      */
     @GetMapping("/manager")
     public String manager() {
-        return "gray/gray_publish/service_gray_publish";
+        return "gray/publish/service_gray_publish";
     }
     
     /**
