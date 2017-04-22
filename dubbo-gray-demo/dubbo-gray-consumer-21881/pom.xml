@@ -22,7 +22,7 @@
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
-			<groupId>com.gray</groupId>
+			<groupId>com.xlz</groupId>
 			<artifactId>gray-engine-dubbo</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
